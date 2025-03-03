@@ -96,6 +96,11 @@ function Library:CreateWindow(title)
         ClipsDescendants = true
     })
     
+    Create("UICorner", {
+        Parent = self.MainFrame,
+        CornerRadius = UDim.new(0, 8)
+    })
+    
     -- Создаем градиентный фон
     local backgroundGradient = Create("UIGradient", {
         Parent = self.MainFrame,
@@ -113,6 +118,11 @@ function Library:CreateWindow(title)
         Size = UDim2.new(1, 0, 0, 30),
         BackgroundColor3 = THEME.Foreground,
         BorderSizePixel = 0
+    })
+    
+    Create("UICorner", {
+        Parent = self.TitleBar,
+        CornerRadius = UDim.new(0, 8)
     })
     
     Create("TextLabel", {
@@ -214,6 +224,11 @@ function Library:CreateWindow(title)
         BorderSizePixel = 0
     })
     
+    Create("UICorner", {
+        Parent = self.TabContainer,
+        CornerRadius = UDim.new(0, 8)
+    })
+    
     self.TabButtons = Create("ScrollingFrame", {
         Name = "TabButtons",
         Parent = self.TabContainer,
@@ -241,6 +256,11 @@ function Library:CreateWindow(title)
         Position = UDim2.new(0, 150, 0, 30),
         BackgroundColor3 = THEME.Background,
         BorderSizePixel = 0
+    })
+    
+    Create("UICorner", {
+        Parent = self.ContentContainer,
+        CornerRadius = UDim.new(0, 8)
     })
     
     -- Контейнер для уведомлений
