@@ -205,9 +205,10 @@ function Library:CreateWindow(title)
         Parent = self.TabContainer,
         Size = UDim2.new(1, 0, 1, 0),
         BackgroundTransparency = 1,
-        ScrollBarThickness = 2,
-        ScrollBarImageColor3 = THEME.TextColor,
-        ScrollBarImageTransparency = 0.5,
+        ScrollBarThickness = 3,
+        ScrollBarImageColor3 = Color3.fromRGB(255, 255, 255),
+        ScrollBarImageTransparency = 0.7,
+        CanvasSize = UDim2.new(0, 0, 0, 0),
         ScrollingDirection = Enum.ScrollingDirection.Y,
         AutomaticCanvasSize = Enum.AutomaticSize.Y
     })
@@ -248,9 +249,9 @@ function Library:CreateWindow(title)
     local watermark = Create("Frame", {
         Name = "Watermark",
         Parent = self.MainGui,
-        Size = UDim2.new(0, 200, 0, 25),
-        Position = UDim2.new(0, 10, 0, 10),
-        BackgroundColor3 = THEME.NotifyBackground,
+        Size = UDim2.new(0, 400, 0, 20),
+        Position = UDim2.new(0, 10, 1, -30),
+        BackgroundColor3 = THEME.Background,
         BorderSizePixel = 0
     })
     
@@ -264,11 +265,11 @@ function Library:CreateWindow(title)
         Size = UDim2.new(1, -10, 1, 0),
         Position = UDim2.new(0, 5, 0, 0),
         BackgroundTransparency = 1,
-        Text = "Nebula Tech | " .. os.date("%H:%M:%S"),
-        TextColor3 = THEME.TextColor,
+        Text = "Milenium for Counter-Strike: Global Offensive                                                                32 days left nebulatech",
+        TextColor3 = THEME.SubTextColor,
         TextXAlignment = Enum.TextXAlignment.Left,
-        Font = Enum.Font.GothamBold,
-        TextSize = 13
+        Font = Enum.Font.Gotham,
+        TextSize = 12
     })
     
     -- Обновление времени
@@ -466,21 +467,21 @@ function Library:CreateSection(tab, name)
     
     Create("UICorner", {
         Parent = outlineContainer,
-        CornerRadius = UDim.new(0, 8)
+        CornerRadius = UDim.new(0, 6)
     })
     
     section.Container = Create("Frame", {
         Parent = outlineContainer,
         Size = UDim2.new(1, -2, 1, -2),
         Position = UDim2.new(0, 1, 0, 1),
-        BackgroundColor3 = THEME.DarkForeground,
+        BackgroundColor3 = THEME.Background,
         BorderSizePixel = 0,
         AutomaticSize = Enum.AutomaticSize.Y
     })
     
     Create("UICorner", {
         Parent = section.Container,
-        CornerRadius = UDim.new(0, 7)
+        CornerRadius = UDim.new(0, 5)
     })
     
     -- Заголовок секции
@@ -546,10 +547,15 @@ function Library:CreateToggle(section, name, default, callback)
     -- Переключатель
     toggle.Button = Create("Frame", {
         Parent = toggle.Container,
-        Size = UDim2.new(0, 36, 0, 18),
-        Position = UDim2.new(1, -36, 0.5, -9),
+        Size = UDim2.new(0, 16, 0, 16),
+        Position = UDim2.new(1, -16, 0.5, -8),
         BackgroundColor3 = toggle.Value and THEME.ToggleEnabled or THEME.ToggleDisabled,
         BorderSizePixel = 0
+    })
+    
+    Create("UICorner", {
+        Parent = toggle.Button,
+        CornerRadius = UDim.new(0, 3)
     })
     
     -- Индикатор
