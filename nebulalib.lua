@@ -32,14 +32,20 @@ local THEME = {
     OutlineColor = Color3.fromRGB(35, 35, 35),
     ToggleBackground = Color3.fromRGB(20, 20, 20),
     ToggleEnabled = Color3.fromRGB(114, 111, 181),
-    ToggleDisabled = Color3.fromRGB(50, 50, 50)
+    ToggleDisabled = Color3.fromRGB(50, 50, 50),
+    NotifyBackground = Color3.fromRGB(25, 25, 25),
+    NotifyBorder = Color3.fromRGB(35, 35, 35),
+    SuccessColor = Color3.fromRGB(72, 255, 167),
+    WarningColor = Color3.fromRGB(255, 186, 72),
+    InfoColor = Color3.fromRGB(72, 156, 255)
 }
 
 local Library = {
     Flags = {},
     Tabs = {},
     ActiveTab = nil,
-    WindowPosition = UDim2.new(0.5, -300, 0.5, -200)
+    WindowPosition = UDim2.new(0.5, -300, 0.5, -200),
+    NotifyList = {}
 }
 
 -- Утилиты
@@ -219,6 +225,54 @@ function Library:CreateWindow(title)
         BackgroundColor3 = THEME.Background,
         BorderSizePixel = 0
     })
+    
+    -- Контейнер для уведомлений
+    self.NotifyContainer = Create("Frame", {
+        Name = "NotifyContainer",
+        Parent = self.MainGui,
+        Size = UDim2.new(0, 300, 1, 0),
+        Position = UDim2.new(1, -310, 0, 10),
+        BackgroundTransparency = 1
+    })
+    
+    Create("UIListLayout", {
+        Parent = self.NotifyContainer,
+        SortOrder = Enum.SortOrder.LayoutOrder,
+        Padding = UDim.new(0, 5),
+        VerticalAlignment = Enum.VerticalAlignment.Top
+    })
+    
+    -- Водяной знак
+    local watermark = Create("Frame", {
+        Name = "Watermark",
+        Parent = self.MainGui,
+        Size = UDim2.new(0, 200, 0, 25),
+        Position = UDim2.new(0, 10, 0, 10),
+        BackgroundColor3 = THEME.NotifyBackground,
+        BorderSizePixel = 0
+    })
+    
+    Create("UICorner", {
+        Parent = watermark,
+        CornerRadius = UDim.new(0, 4)
+    })
+    
+    Create("TextLabel", {
+        Parent = watermark,
+        Size = UDim2.new(1, -10, 1, 0),
+        Position = UDim2.new(0, 5, 0, 0),
+        BackgroundTransparency = 1,
+        Text = "Nebula Tech | " .. os.date("%H:%M:%S"),
+        TextColor3 = THEME.TextColor,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        Font = Enum.Font.GothamBold,
+        TextSize = 13
+    })
+    
+    -- Обновление времени
+    RunService.RenderStepped:Connect(function()
+        watermark:FindFirstChild("TextLabel").Text = "Nebula Tech | " .. os.date("%H:%M:%S")
+    end)
     
     return self
 end
@@ -1001,5 +1055,107 @@ end
 
 -- Добавляем ESP в библиотеку
 Library.ESP = ESPSystem
+
+function Library:Notify(title, text, notifyType, duration)
+    duration = duration or 5
+    notifyType = notifyType or "Info"
+    
+    local typeColors = {
+        Success = THEME.SuccessColor,
+        Warning = THEME.WarningColor,
+        Info = THEME.InfoColor,
+        Error = THEME.ErrorColor
+    }
+    
+    local notify = Create("Frame", {
+        Parent = self.NotifyContainer,
+        Size = UDim2.new(1, -10, 0, 0),
+        BackgroundColor3 = THEME.NotifyBackground,
+        BorderSizePixel = 0,
+        AutomaticSize = Enum.AutomaticSize.Y
+    })
+    
+    Create("UICorner", {
+        Parent = notify,
+        CornerRadius = UDim.new(0, 4)
+    })
+    
+    -- Цветная полоса слева
+    local accent = Create("Frame", {
+        Parent = notify,
+        Size = UDim2.new(0, 2, 1, 0),
+        BackgroundColor3 = typeColors[notifyType],
+        BorderSizePixel = 0
+    })
+    
+    Create("UICorner", {
+        Parent = accent,
+        CornerRadius = UDim.new(0, 2)
+    })
+    
+    -- Заголовок
+    Create("TextLabel", {
+        Parent = notify,
+        Size = UDim2.new(1, -20, 0, 25),
+        Position = UDim2.new(0, 10, 0, 0),
+        BackgroundTransparency = 1,
+        Text = title,
+        TextColor3 = typeColors[notifyType],
+        TextXAlignment = Enum.TextXAlignment.Left,
+        Font = Enum.Font.GothamBold,
+        TextSize = 14
+    })
+    
+    -- Текст
+    Create("TextLabel", {
+        Parent = notify,
+        Size = UDim2.new(1, -20, 0, 0),
+        Position = UDim2.new(0, 10, 0, 25),
+        BackgroundTransparency = 1,
+        Text = text,
+        TextColor3 = THEME.TextColor,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        TextYAlignment = Enum.TextYAlignment.Top,
+        Font = Enum.Font.Gotham,
+        TextSize = 13,
+        TextWrapped = true,
+        AutomaticSize = Enum.AutomaticSize.Y
+    })
+    
+    -- Анимация появления
+    notify.BackgroundTransparency = 1
+    accent.BackgroundTransparency = 1
+    
+    for _, child in pairs(notify:GetChildren()) do
+        if child:IsA("TextLabel") then
+            child.TextTransparency = 1
+        end
+    end
+    
+    Tween(notify, {BackgroundTransparency = 0})
+    Tween(accent, {BackgroundTransparency = 0})
+    
+    for _, child in pairs(notify:GetChildren()) do
+        if child:IsA("TextLabel") then
+            Tween(child, {TextTransparency = 0})
+        end
+    end
+    
+    -- Удаление через duration секунд
+    task.delay(duration, function()
+        -- Анимация исчезновения
+        Tween(notify, {BackgroundTransparency = 1})
+        Tween(accent, {BackgroundTransparency = 1})
+        
+        for _, child in pairs(notify:GetChildren()) do
+            if child:IsA("TextLabel") then
+                Tween(child, {TextTransparency = 1})
+            end
+        end
+        
+        task.wait(0.3)
+        notify:Destroy()
+    end)
+end
 
 return Library 
