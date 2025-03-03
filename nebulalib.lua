@@ -19,20 +19,24 @@ local CoreGui = game:GetService("CoreGui")
 
 -- Константы
 local THEME = {
-    Background = Color3.fromRGB(12, 12, 12),
-    Foreground = Color3.fromRGB(18, 18, 18),
-    DarkForeground = Color3.fromRGB(15, 15, 15),
-    AccentColor = Color3.fromRGB(147, 112, 219), -- Лавандовый цвет
+    Background = Color3.fromRGB(15, 15, 20),
+    Foreground = Color3.fromRGB(20, 20, 25),
+    DarkForeground = Color3.fromRGB(18, 18, 23),
+    AccentColor = Color3.fromRGB(147, 112, 219), -- Светло-фиолетовый
     TextColor = Color3.fromRGB(200, 200, 200),
     SubTextColor = Color3.fromRGB(160, 160, 160),
-    BorderColor = Color3.fromRGB(25, 25, 25),
-    PlaceholderColor = Color3.fromRGB(50, 50, 50),
-    HoverColor = Color3.fromRGB(22, 22, 22),
+    BorderColor = Color3.fromRGB(30, 30, 35),
+    PlaceholderColor = Color3.fromRGB(50, 50, 55),
+    HoverColor = Color3.fromRGB(25, 25, 30),
     ErrorColor = Color3.fromRGB(255, 64, 64),
-    OutlineColor = Color3.fromRGB(30, 30, 30),
-    ToggleBackground = Color3.fromRGB(25, 25, 25),
+    OutlineColor = Color3.fromRGB(35, 35, 40),
+    ToggleBackground = Color3.fromRGB(30, 30, 35),
     ToggleEnabled = Color3.fromRGB(147, 112, 219),
-    ToggleDisabled = Color3.fromRGB(40, 40, 40),
+    ToggleDisabled = Color3.fromRGB(45, 45, 50),
+    CheckboxBackground = Color3.fromRGB(25, 25, 30),
+    CheckboxEnabled = Color3.fromRGB(147, 112, 219),
+    CheckboxDisabled = Color3.fromRGB(40, 40, 45),
+    DropdownBackground = Color3.fromRGB(20, 20, 25, 0.8),
     NotifyBackground = Color3.fromRGB(20, 20, 20),
     NotifyBorder = Color3.fromRGB(30, 30, 30),
     SuccessColor = Color3.fromRGB(72, 255, 167),
@@ -92,17 +96,14 @@ function Library:CreateWindow(title)
         ClipsDescendants = true
     })
     
-    -- Фоновая сетка
-    local gridBackground = Create("ImageLabel", {
-        Name = "GridBackground",
+    -- Создаем градиентный фон
+    local backgroundGradient = Create("UIGradient", {
         Parent = self.MainFrame,
-        Size = UDim2.new(1, 0, 1, 0),
-        BackgroundTransparency = 1,
-        Image = "rbxassetid://2151741365",
-        ImageColor3 = Color3.fromRGB(30, 30, 30),
-        ImageTransparency = 0.9,
-        ScaleType = Enum.ScaleType.Tile,
-        TileSize = UDim2.new(0, 30, 0, 30)
+        Color = ColorSequence.new({
+            ColorSequenceKeypoint.new(0, Color3.fromRGB(15, 15, 20)),
+            ColorSequenceKeypoint.new(1, Color3.fromRGB(20, 20, 30))
+        }),
+        Rotation = 45
     })
     
     -- Заголовок
@@ -258,13 +259,14 @@ function Library:CreateWindow(title)
         VerticalAlignment = Enum.VerticalAlignment.Top
     })
     
-    -- Водяной знак
+    -- Обновляем водяной знак
     local watermark = Create("Frame", {
         Name = "Watermark",
         Parent = self.MainGui,
         Size = UDim2.new(0, 400, 0, 20),
         Position = UDim2.new(0, 10, 1, -30),
         BackgroundColor3 = THEME.Background,
+        BackgroundTransparency = 0.5,
         BorderSizePixel = 0
     })
     
@@ -273,14 +275,26 @@ function Library:CreateWindow(title)
         CornerRadius = UDim.new(0, 4)
     })
     
-    Create("TextLabel", {
+    local watermarkText = Create("TextLabel", {
         Parent = watermark,
         Size = UDim2.new(1, -10, 1, 0),
         Position = UDim2.new(0, 5, 0, 0),
         BackgroundTransparency = 1,
-        Text = "Milenium for Counter-Strike: Global Offensive                                                                32 days left nebulatech",
+        Text = "Milienium for Counter-Strike: Global Offensive",
         TextColor3 = THEME.SubTextColor,
         TextXAlignment = Enum.TextXAlignment.Left,
+        Font = Enum.Font.Gotham,
+        TextSize = 12
+    })
+    
+    local subscriptionText = Create("TextLabel", {
+        Parent = watermark,
+        Size = UDim2.new(0, 150, 1, 0),
+        Position = UDim2.new(1, -155, 0, 0),
+        BackgroundTransparency = 1,
+        Text = "32 days left, nebulatech",
+        TextColor3 = THEME.SubTextColor,
+        TextXAlignment = Enum.TextXAlignment.Right,
         Font = Enum.Font.Gotham,
         TextSize = 12
     })
