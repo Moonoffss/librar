@@ -560,15 +560,15 @@ function Library:CreateToggle(section, name, default, callback)
     -- Переключатель
     toggle.Button = Create("Frame", {
         Parent = toggle.Container,
-        Size = UDim2.new(0, 16, 0, 16),
-        Position = UDim2.new(1, -16, 0.5, -8),
+        Size = UDim2.new(0, 36, 0, 18),
+        Position = UDim2.new(1, -36, 0.5, -9),
         BackgroundColor3 = toggle.Value and THEME.ToggleEnabled or THEME.ToggleDisabled,
         BorderSizePixel = 0
     })
     
     Create("UICorner", {
         Parent = toggle.Button,
-        CornerRadius = UDim.new(0, 3)
+        CornerRadius = UDim.new(0, 9)
     })
     
     -- Индикатор
@@ -580,15 +580,9 @@ function Library:CreateToggle(section, name, default, callback)
         BorderSizePixel = 0
     })
     
-    -- Скругление углов
-    Create("UICorner", {
-        Parent = toggle.Button,
-        CornerRadius = UDim.new(1, 0)
-    })
-    
     Create("UICorner", {
         Parent = toggle.Indicator,
-        CornerRadius = UDim.new(1, 0)
+        CornerRadius = UDim.new(0, 7)
     })
     
     -- Функция для установки значения
