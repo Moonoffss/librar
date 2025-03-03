@@ -86,40 +86,6 @@ function Library:CreateWindow(title)
         ClipsDescendants = true
     })
     
-    -- Делаем окно перетаскиваемым
-    local dragInput, dragStart, startPos
-    
-    self.MainFrame.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            dragStart = input.Position
-            startPos = self.MainFrame.Position
-            
-            input.Changed:Connect(function()
-                if input.UserInputState == Enum.UserInputState.End then
-                    dragStart = nil
-                end
-            end)
-        end
-    end)
-    
-    self.MainFrame.InputChanged:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseMovement then
-            dragInput = input
-        end
-    end)
-    
-    UserInputService.InputChanged:Connect(function(input)
-        if input == dragInput and dragStart then
-            local delta = input.Position - dragStart
-            self.MainFrame.Position = UDim2.new(
-                startPos.X.Scale,
-                startPos.X.Offset + delta.X,
-                startPos.Y.Scale,
-                startPos.Y.Offset + delta.Y
-            )
-        end
-    end)
-    
     -- Заголовок
     self.TitleBar = Create("Frame", {
         Name = "TitleBar",
@@ -140,6 +106,83 @@ function Library:CreateWindow(title)
         Font = Enum.Font.Gotham,
         TextSize = 14
     })
+    
+    -- Кнопка изменения размера
+    local resizeButton = Create("TextButton", {
+        Parent = self.MainFrame,
+        Size = UDim2.new(0, 20, 0, 20),
+        Position = UDim2.new(1, -20, 1, -20),
+        BackgroundTransparency = 1,
+        Text = "⟊",
+        TextColor3 = THEME.TextColor,
+        Font = Enum.Font.Gotham,
+        TextSize = 14,
+        ZIndex = 1000
+    })
+    
+    -- Перемещение окна
+    local dragInput, dragStart, startPos
+    local dragging = false
+    
+    self.TitleBar.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = true
+            dragStart = input.Position
+            startPos = self.MainFrame.Position
+            
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragging = false
+                end
+            end)
+        end
+    end)
+    
+    self.TitleBar.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement then
+            dragInput = input
+        end
+    end)
+    
+    -- Изменение размера
+    local resizing = false
+    local minSize = Vector2.new(400, 300)
+    local maxSize = Vector2.new(800, 600)
+    
+    resizeButton.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            resizing = true
+            dragStart = input.Position
+            startPos = self.MainFrame.Size
+            
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    resizing = false
+                end
+            end)
+        end
+    end)
+    
+    UserInputService.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement then
+            if dragging then
+                local delta = input.Position - dragStart
+                self.MainFrame.Position = UDim2.new(
+                    startPos.X.Scale,
+                    startPos.X.Offset + delta.X,
+                    startPos.Y.Scale,
+                    startPos.Y.Offset + delta.Y
+                )
+            elseif resizing then
+                local delta = input.Position - dragStart
+                local newSize = Vector2.new(
+                    math.clamp(startPos.X.Offset + delta.X, minSize.X, maxSize.X),
+                    math.clamp(startPos.Y.Offset + delta.Y, minSize.Y, maxSize.Y)
+                )
+                self.MainFrame.Size = UDim2.new(0, newSize.X, 0, newSize.Y)
+            end
+        end
+    end)
     
     -- Контейнер для вкладок
     self.TabContainer = Create("Frame", {
