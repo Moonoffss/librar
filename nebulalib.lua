@@ -277,14 +277,13 @@ function Library:CreateSection(tab, name)
             AutomaticSize = Enum.AutomaticSize.Y
         })
         
-        -- Добавляем горизонтальный layout
         Create("UIGridLayout", {
             Parent = tab.SectionsContainer,
             SortOrder = Enum.SortOrder.LayoutOrder,
             FillDirection = Enum.FillDirection.Horizontal,
             HorizontalAlignment = Enum.HorizontalAlignment.Left,
             VerticalAlignment = Enum.VerticalAlignment.Top,
-            CellSize = UDim2.new(0.5, -5, 0, 0), -- Две секции в ряд
+            CellSize = UDim2.new(0.5, -5, 0, 0),
             CellPadding = UDim2.new(0, 10, 0, 10)
         })
     end
@@ -294,7 +293,7 @@ function Library:CreateSection(tab, name)
         BackgroundColor3 = THEME.Foreground,
         BorderSizePixel = 0,
         AutomaticSize = Enum.AutomaticSize.Y,
-        Size = UDim2.new(1, 0, 0, 0)
+        Size = UDim2.new(0.5, -5, 0, 0)
     })
     
     -- Скругление углов для секции
@@ -331,9 +330,8 @@ function Library:CreateSection(tab, name)
         Padding = UDim.new(0, 5)
     })
     
-    -- Добавляем отступ снизу
     Create("UIPadding", {
-        Parent = section.Container,
+        Parent = section.Content,
         PaddingBottom = UDim.new(0, 10)
     })
     
