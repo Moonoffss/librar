@@ -19,13 +19,15 @@ local CoreGui = game:GetService("CoreGui")
 
 -- Константы
 local THEME = {
-    Background = Color3.fromRGB(17, 17, 17),
-    Foreground = Color3.fromRGB(25, 25, 25),
+    Background = Color3.fromRGB(20, 20, 20),
+    Foreground = Color3.fromRGB(30, 30, 30),
     AccentColor = Color3.fromRGB(114, 111, 181),
     TextColor = Color3.fromRGB(255, 255, 255),
     SubTextColor = Color3.fromRGB(180, 180, 180),
-    BorderColor = Color3.fromRGB(30, 30, 30),
-    PlaceholderColor = Color3.fromRGB(100, 100, 100)
+    BorderColor = Color3.fromRGB(40, 40, 40),
+    PlaceholderColor = Color3.fromRGB(60, 60, 60),
+    HoverColor = Color3.fromRGB(40, 40, 40),
+    ErrorColor = Color3.fromRGB(255, 64, 64)
 }
 
 local Library = {
@@ -366,7 +368,8 @@ end
 
 function Library:CreateToggle(section, name, default, callback)
     local toggle = {
-        Value = default or false
+        Value = default or false,
+        Keybind = nil
     }
     
     toggle.Container = Create("Frame", {
@@ -393,8 +396,7 @@ function Library:CreateToggle(section, name, default, callback)
         Size = UDim2.new(0, 40, 0, 20),
         Position = UDim2.new(1, -40, 0.5, -10),
         BackgroundColor3 = toggle.Value and THEME.AccentColor or THEME.PlaceholderColor,
-        BorderSizePixel = 0,
-        ClipsDescendants = true
+        BorderSizePixel = 0
     })
     
     -- Индикатор
@@ -417,18 +419,48 @@ function Library:CreateToggle(section, name, default, callback)
         CornerRadius = UDim.new(1, 0)
     })
     
+    -- Эффект свечения
+    local glow = Create("ImageLabel", {
+        Parent = toggle.Button,
+        Size = UDim2.new(1.5, 0, 1.5, 0),
+        Position = UDim2.new(0.5, 0, 0.5, 0),
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        BackgroundTransparency = 1,
+        Image = "rbxassetid://7603818835",
+        ImageColor3 = THEME.AccentColor,
+        ImageTransparency = toggle.Value and 0.8 or 1
+    })
+    
+    -- Функция для установки значения
+    function toggle:SetValue(value)
+        toggle.Value = value
+        Tween(toggle.Button, {BackgroundColor3 = value and THEME.AccentColor or THEME.PlaceholderColor})
+        Tween(toggle.Indicator, {Position = UDim2.new(value and 1 or 0, value and -18 or 2, 0.5, -8)})
+        Tween(glow, {ImageTransparency = value and 0.8 or 1})
+        if callback then
+            callback(value)
+        end
+    end
+    
+    -- Функция для установки клавиши
+    function toggle:SetKeybind(key)
+        if toggle.Keybind then
+            toggle.Keybind:Disconnect()
+        end
+        
+        if key then
+            toggle.Keybind = UserInputService.InputBegan:Connect(function(input)
+                if input.KeyCode == key then
+                    toggle:SetValue(not toggle.Value)
+                end
+            end)
+        end
+    end
+    
     -- Обработка нажатия
     toggle.Button.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            toggle.Value = not toggle.Value
-            
-            -- Анимация
-            Tween(toggle.Button, {BackgroundColor3 = toggle.Value and THEME.AccentColor or THEME.PlaceholderColor})
-            Tween(toggle.Indicator, {Position = UDim2.new(toggle.Value and 1 or 0, toggle.Value and -18 or 2, 0.5, -8)})
-            
-            if callback then
-                callback(toggle.Value)
-            end
+            toggle:SetValue(not toggle.Value)
         end
     end)
     
@@ -453,30 +485,294 @@ function Library:CreateButton(section, name, callback)
     -- Скругление углов
     Create("UICorner", {
         Parent = button.Container,
-        CornerRadius = UDim.new(0, 4)
+        CornerRadius = UDim.new(0, 6)
     })
     
-    -- Эффект при наведении и нажатии
+    -- Эффект свечения
+    local glow = Create("ImageLabel", {
+        Parent = button.Container,
+        Size = UDim2.new(1.1, 0, 1.2, 0),
+        Position = UDim2.new(0.5, 0, 0.5, 0),
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        BackgroundTransparency = 1,
+        Image = "rbxassetid://7603818835",
+        ImageColor3 = THEME.AccentColor,
+        ImageTransparency = 1
+    })
+    
+    -- Эффекты при наведении и нажатии
     button.Container.MouseEnter:Connect(function()
-        Tween(button.Container, {BackgroundColor3 = THEME.AccentColor})
+        Tween(button.Container, {BackgroundColor3 = THEME.HoverColor})
+        Tween(glow, {ImageTransparency = 0.8})
     end)
     
     button.Container.MouseLeave:Connect(function()
         Tween(button.Container, {BackgroundColor3 = THEME.Foreground})
+        Tween(glow, {ImageTransparency = 1})
     end)
     
     button.Container.MouseButton1Down:Connect(function()
         Tween(button.Container, {BackgroundColor3 = THEME.PlaceholderColor})
+        Tween(glow, {ImageTransparency = 0.7})
     end)
     
     button.Container.MouseButton1Up:Connect(function()
-        Tween(button.Container, {BackgroundColor3 = THEME.AccentColor})
+        Tween(button.Container, {BackgroundColor3 = THEME.HoverColor})
+        Tween(glow, {ImageTransparency = 0.8})
         if callback then
             callback()
         end
     end)
     
     return button
+end
+
+function Library:CreateDropdown(section, name, options, default, callback)
+    local dropdown = {
+        Value = default or options[1],
+        Options = options,
+        Open = false
+    }
+    
+    dropdown.Container = Create("Frame", {
+        Parent = section.Content,
+        Size = UDim2.new(1, 0, 0, 30),
+        BackgroundTransparency = 1
+    })
+    
+    -- Текст
+    Create("TextLabel", {
+        Parent = dropdown.Container,
+        Size = UDim2.new(1, -60, 1, 0),
+        BackgroundTransparency = 1,
+        Text = name,
+        TextColor3 = THEME.TextColor,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        Font = Enum.Font.Gotham,
+        TextSize = 14
+    })
+    
+    -- Кнопка дропдауна
+    dropdown.Button = Create("TextButton", {
+        Parent = dropdown.Container,
+        Size = UDim2.new(0, 120, 0, 24),
+        Position = UDim2.new(1, -120, 0.5, -12),
+        BackgroundColor3 = THEME.Foreground,
+        BorderSizePixel = 0,
+        Text = dropdown.Value,
+        TextColor3 = THEME.TextColor,
+        Font = Enum.Font.Gotham,
+        TextSize = 12,
+        AutoButtonColor = false
+    })
+    
+    -- Скругление углов
+    Create("UICorner", {
+        Parent = dropdown.Button,
+        CornerRadius = UDim.new(0, 4)
+    })
+    
+    -- Список опций
+    dropdown.OptionList = Create("Frame", {
+        Parent = dropdown.Button,
+        Size = UDim2.new(1, 0, 0, 0),
+        Position = UDim2.new(0, 0, 1, 5),
+        BackgroundColor3 = THEME.Foreground,
+        BorderSizePixel = 0,
+        Visible = false,
+        ZIndex = 10
+    })
+    
+    Create("UICorner", {
+        Parent = dropdown.OptionList,
+        CornerRadius = UDim.new(0, 4)
+    })
+    
+    local optionLayout = Create("UIListLayout", {
+        Parent = dropdown.OptionList,
+        SortOrder = Enum.SortOrder.LayoutOrder,
+        Padding = UDim.new(0, 2)
+    })
+    
+    -- Создаем опции
+    for _, option in ipairs(options) do
+        local optionButton = Create("TextButton", {
+            Parent = dropdown.OptionList,
+            Size = UDim2.new(1, 0, 0, 24),
+            BackgroundColor3 = THEME.Foreground,
+            BorderSizePixel = 0,
+            Text = option,
+            TextColor3 = THEME.TextColor,
+            Font = Enum.Font.Gotham,
+            TextSize = 12,
+            AutoButtonColor = false,
+            ZIndex = 11
+        })
+        
+        optionButton.MouseEnter:Connect(function()
+            Tween(optionButton, {BackgroundColor3 = THEME.HoverColor})
+        end)
+        
+        optionButton.MouseLeave:Connect(function()
+            Tween(optionButton, {BackgroundColor3 = THEME.Foreground})
+        end)
+        
+        optionButton.MouseButton1Click:Connect(function()
+            dropdown.Value = option
+            dropdown.Button.Text = option
+            dropdown:Toggle(false)
+            if callback then
+                callback(option)
+            end
+        end)
+    end
+    
+    -- Функция переключения дропдауна
+    function dropdown:Toggle(state)
+        dropdown.Open = state
+        dropdown.OptionList.Visible = state
+        if state then
+            dropdown.OptionList.Size = UDim2.new(1, 0, 0, #options * 26)
+        end
+    end
+    
+    -- Обработка нажатия
+    dropdown.Button.MouseButton1Click:Connect(function()
+        dropdown:Toggle(not dropdown.Open)
+    end)
+    
+    -- Закрываем при клике вне дропдауна
+    UserInputService.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            local mousePos = UserInputService:GetMouseLocation()
+            local inBounds = mousePos.X >= dropdown.Button.AbsolutePosition.X and
+                           mousePos.X <= dropdown.Button.AbsolutePosition.X + dropdown.Button.AbsoluteSize.X and
+                           mousePos.Y >= dropdown.Button.AbsolutePosition.Y and
+                           mousePos.Y <= dropdown.Button.AbsolutePosition.Y + dropdown.Button.AbsoluteSize.Y
+            
+            if not inBounds and dropdown.Open then
+                dropdown:Toggle(false)
+            end
+        end
+    end)
+    
+    return dropdown
+end
+
+function Library:CreateKeybind(section, name, default, callback)
+    local keybind = {
+        Value = default or Enum.KeyCode.Unknown,
+        Listening = false
+    }
+    
+    keybind.Container = Create("Frame", {
+        Parent = section.Content,
+        Size = UDim2.new(1, 0, 0, 30),
+        BackgroundTransparency = 1
+    })
+    
+    -- Текст
+    Create("TextLabel", {
+        Parent = keybind.Container,
+        Size = UDim2.new(1, -60, 1, 0),
+        BackgroundTransparency = 1,
+        Text = name,
+        TextColor3 = THEME.TextColor,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        Font = Enum.Font.Gotham,
+        TextSize = 14
+    })
+    
+    -- Кнопка
+    keybind.Button = Create("TextButton", {
+        Parent = keybind.Container,
+        Size = UDim2.new(0, 60, 0, 24),
+        Position = UDim2.new(1, -60, 0.5, -12),
+        BackgroundColor3 = THEME.Foreground,
+        BorderSizePixel = 0,
+        Text = keybind.Value.Name,
+        TextColor3 = THEME.TextColor,
+        Font = Enum.Font.Gotham,
+        TextSize = 12,
+        AutoButtonColor = false
+    })
+    
+    Create("UICorner", {
+        Parent = keybind.Button,
+        CornerRadius = UDim.new(0, 4)
+    })
+    
+    -- Обработка нажатия
+    keybind.Button.MouseButton1Click:Connect(function()
+        keybind.Listening = true
+        keybind.Button.Text = "..."
+    end)
+    
+    -- Обработка ввода
+    UserInputService.InputBegan:Connect(function(input)
+        if keybind.Listening and input.UserInputType == Enum.UserInputType.Keyboard then
+            keybind.Value = input.KeyCode
+            keybind.Button.Text = input.KeyCode.Name
+            keybind.Listening = false
+            if callback then
+                callback(input.KeyCode)
+            end
+        end
+    end)
+    
+    return keybind
+end
+
+function Library:CreateTextbox(section, name, placeholder, callback)
+    local textbox = {}
+    
+    textbox.Container = Create("Frame", {
+        Parent = section.Content,
+        Size = UDim2.new(1, 0, 0, 30),
+        BackgroundTransparency = 1
+    })
+    
+    -- Текст
+    Create("TextLabel", {
+        Parent = textbox.Container,
+        Size = UDim2.new(1, -120, 1, 0),
+        BackgroundTransparency = 1,
+        Text = name,
+        TextColor3 = THEME.TextColor,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        Font = Enum.Font.Gotham,
+        TextSize = 14
+    })
+    
+    -- Поле ввода
+    textbox.Input = Create("TextBox", {
+        Parent = textbox.Container,
+        Size = UDim2.new(0, 110, 0, 24),
+        Position = UDim2.new(1, -110, 0.5, -12),
+        BackgroundColor3 = THEME.Foreground,
+        BorderSizePixel = 0,
+        Text = "",
+        PlaceholderText = placeholder,
+        TextColor3 = THEME.TextColor,
+        PlaceholderColor3 = THEME.PlaceholderColor,
+        Font = Enum.Font.Gotham,
+        TextSize = 12,
+        ClearTextOnFocus = false
+    })
+    
+    Create("UICorner", {
+        Parent = textbox.Input,
+        CornerRadius = UDim.new(0, 4)
+    })
+    
+    -- Обработка изменения текста
+    textbox.Input.FocusLost:Connect(function(enterPressed)
+        if enterPressed and callback then
+            callback(textbox.Input.Text)
+        end
+    end)
+    
+    return textbox
 end
 
 -- ESP система
