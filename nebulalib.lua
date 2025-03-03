@@ -955,6 +955,132 @@ function Library:CreateTextbox(section, name, placeholder, callback)
     return textbox
 end
 
+function Library:CreateSlider(section, name, min, max, default, callback)
+    local slider = {
+        Value = default or min,
+        Min = min,
+        Max = max
+    }
+    
+    slider.Container = Create("Frame", {
+        Parent = section.Content,
+        Size = UDim2.new(1, 0, 0, 45),
+        BackgroundTransparency = 1
+    })
+    
+    -- Текст и значение
+    local textContainer = Create("Frame", {
+        Parent = slider.Container,
+        Size = UDim2.new(1, 0, 0, 20),
+        BackgroundTransparency = 1
+    })
+    
+    Create("TextLabel", {
+        Parent = textContainer,
+        Size = UDim2.new(1, -45, 1, 0),
+        BackgroundTransparency = 1,
+        Text = name,
+        TextColor3 = THEME.TextColor,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        Font = Enum.Font.Gotham,
+        TextSize = 13
+    })
+    
+    local valueLabel = Create("TextLabel", {
+        Parent = textContainer,
+        Size = UDim2.new(0, 40, 1, 0),
+        Position = UDim2.new(1, -40, 0, 0),
+        BackgroundTransparency = 1,
+        Text = tostring(slider.Value),
+        TextColor3 = THEME.AccentColor,
+        TextXAlignment = Enum.TextXAlignment.Right,
+        Font = Enum.Font.GothamBold,
+        TextSize = 13
+    })
+    
+    -- Слайдер
+    local sliderBar = Create("Frame", {
+        Parent = slider.Container,
+        Size = UDim2.new(1, 0, 0, 6),
+        Position = UDim2.new(0, 0, 0, 30),
+        BackgroundColor3 = THEME.ToggleDisabled,
+        BorderSizePixel = 0
+    })
+    
+    Create("UICorner", {
+        Parent = sliderBar,
+        CornerRadius = UDim.new(0, 3)
+    })
+    
+    local sliderFill = Create("Frame", {
+        Parent = sliderBar,
+        Size = UDim2.new((slider.Value - min)/(max - min), 0, 1, 0),
+        BackgroundColor3 = THEME.AccentColor,
+        BorderSizePixel = 0
+    })
+    
+    Create("UICorner", {
+        Parent = sliderFill,
+        CornerRadius = UDim.new(0, 3)
+    })
+    
+    local sliderButton = Create("TextButton", {
+        Parent = sliderBar,
+        Size = UDim2.new(0, 12, 0, 12),
+        Position = UDim2.new((slider.Value - min)/(max - min), -6, 0.5, -6),
+        BackgroundColor3 = THEME.TextColor,
+        Text = "",
+        BorderSizePixel = 0,
+        AutoButtonColor = false
+    })
+    
+    Create("UICorner", {
+        Parent = sliderButton,
+        CornerRadius = UDim.new(1, 0)
+    })
+    
+    -- Функционал слайдера
+    local dragging = false
+    
+    function slider:Set(value)
+        value = math.clamp(value, min, max)
+        value = math.floor(value * 10) / 10
+        slider.Value = value
+        valueLabel.Text = tostring(value)
+        sliderFill.Size = UDim2.new((value - min)/(max - min), 0, 1, 0)
+        sliderButton.Position = UDim2.new((value - min)/(max - min), -6, 0.5, -6)
+        if callback then
+            callback(value)
+        end
+    end
+    
+    sliderButton.MouseButton1Down:Connect(function()
+        dragging = true
+    end)
+    
+    UserInputService.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = false
+        end
+    end)
+    
+    UserInputService.InputChanged:Connect(function(input)
+        if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+            local mousePos = UserInputService:GetMouseLocation().X
+            local framePos = sliderBar.AbsolutePosition.X
+            local frameSize = sliderBar.AbsoluteSize.X
+            local relativePos = math.clamp((mousePos - framePos) / frameSize, 0, 1)
+            local value = min + (max - min) * relativePos
+            slider:Set(value)
+        end
+    end)
+    
+    -- Установка начального значения
+    slider:Set(slider.Value)
+    
+    return slider
+end
+
 -- ESP система
 local ESPSystem = {
     Enabled = false,
