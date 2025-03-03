@@ -19,22 +19,22 @@ local CoreGui = game:GetService("CoreGui")
 
 -- Константы
 local THEME = {
-    Background = Color3.fromRGB(15, 15, 15),
-    Foreground = Color3.fromRGB(20, 20, 20),
-    DarkForeground = Color3.fromRGB(13, 13, 13),
-    AccentColor = Color3.fromRGB(114, 111, 181),
-    TextColor = Color3.fromRGB(255, 255, 255),
-    SubTextColor = Color3.fromRGB(180, 180, 180),
-    BorderColor = Color3.fromRGB(30, 30, 30),
-    PlaceholderColor = Color3.fromRGB(60, 60, 60),
-    HoverColor = Color3.fromRGB(25, 25, 25),
+    Background = Color3.fromRGB(12, 12, 12),
+    Foreground = Color3.fromRGB(18, 18, 18),
+    DarkForeground = Color3.fromRGB(15, 15, 15),
+    AccentColor = Color3.fromRGB(147, 112, 219), -- Лавандовый цвет
+    TextColor = Color3.fromRGB(200, 200, 200),
+    SubTextColor = Color3.fromRGB(160, 160, 160),
+    BorderColor = Color3.fromRGB(25, 25, 25),
+    PlaceholderColor = Color3.fromRGB(50, 50, 50),
+    HoverColor = Color3.fromRGB(22, 22, 22),
     ErrorColor = Color3.fromRGB(255, 64, 64),
-    OutlineColor = Color3.fromRGB(35, 35, 35),
-    ToggleBackground = Color3.fromRGB(20, 20, 20),
-    ToggleEnabled = Color3.fromRGB(114, 111, 181),
-    ToggleDisabled = Color3.fromRGB(50, 50, 50),
-    NotifyBackground = Color3.fromRGB(25, 25, 25),
-    NotifyBorder = Color3.fromRGB(35, 35, 35),
+    OutlineColor = Color3.fromRGB(30, 30, 30),
+    ToggleBackground = Color3.fromRGB(25, 25, 25),
+    ToggleEnabled = Color3.fromRGB(147, 112, 219),
+    ToggleDisabled = Color3.fromRGB(40, 40, 40),
+    NotifyBackground = Color3.fromRGB(20, 20, 20),
+    NotifyBorder = Color3.fromRGB(30, 30, 30),
     SuccessColor = Color3.fromRGB(72, 255, 167),
     WarningColor = Color3.fromRGB(255, 186, 72),
     InfoColor = Color3.fromRGB(72, 156, 255)
@@ -90,6 +90,19 @@ function Library:CreateWindow(title)
         BackgroundColor3 = THEME.Background,
         BorderSizePixel = 0,
         ClipsDescendants = true
+    })
+    
+    -- Фоновая сетка
+    local gridBackground = Create("ImageLabel", {
+        Name = "GridBackground",
+        Parent = self.MainFrame,
+        Size = UDim2.new(1, 0, 1, 0),
+        BackgroundTransparency = 1,
+        Image = "rbxassetid://2151741365",
+        ImageColor3 = Color3.fromRGB(30, 30, 30),
+        ImageTransparency = 0.9,
+        ScaleType = Enum.ScaleType.Tile,
+        TileSize = UDim2.new(0, 30, 0, 30)
     })
     
     -- Заголовок
@@ -491,7 +504,7 @@ function Library:CreateSection(tab, name)
         Position = UDim2.new(0, 10, 0, 0),
         BackgroundTransparency = 1,
         Text = name,
-        TextColor3 = THEME.TextColor,
+        TextColor3 = THEME.AccentColor,
         TextXAlignment = Enum.TextXAlignment.Left,
         Font = Enum.Font.GothamBold,
         TextSize = 14
@@ -538,7 +551,7 @@ function Library:CreateToggle(section, name, default, callback)
         Size = UDim2.new(1, -50, 1, 0),
         BackgroundTransparency = 1,
         Text = name,
-        TextColor3 = THEME.TextColor,
+        TextColor3 = THEME.AccentColor,
         TextXAlignment = Enum.TextXAlignment.Left,
         Font = Enum.Font.Gotham,
         TextSize = 13
