@@ -205,8 +205,9 @@ function Library:CreateWindow(title)
         Parent = self.TabContainer,
         Size = UDim2.new(1, 0, 1, 0),
         BackgroundTransparency = 1,
-        ScrollBarThickness = 0,
-        ScrollBarImageTransparency = 1,
+        ScrollBarThickness = 2,
+        ScrollBarImageColor3 = THEME.TextColor,
+        ScrollBarImageTransparency = 0.5,
         ScrollingDirection = Enum.ScrollingDirection.Y,
         AutomaticCanvasSize = Enum.AutomaticSize.Y
     })
@@ -348,8 +349,9 @@ function Library:CreateTab(name, icon)
         Size = UDim2.new(1, -20, 1, -20),
         Position = UDim2.new(0, 10, 0, 10),
         BackgroundTransparency = 1,
-        ScrollBarThickness = 0,
-        ScrollBarImageTransparency = 1,
+        ScrollBarThickness = 2,
+        ScrollBarImageColor3 = THEME.TextColor,
+        ScrollBarImageTransparency = 0.5,
         ScrollingDirection = Enum.ScrollingDirection.Y,
         Visible = false,
         AutomaticCanvasSize = Enum.AutomaticSize.Y
