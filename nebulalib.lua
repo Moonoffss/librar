@@ -277,23 +277,49 @@ function Library:CreateSection(tab, name)
             AutomaticSize = Enum.AutomaticSize.Y
         })
         
-        Create("UIGridLayout", {
+        -- Создаем левую и правую колонки
+        tab.LeftColumn = Create("Frame", {
             Parent = tab.SectionsContainer,
-            SortOrder = Enum.SortOrder.LayoutOrder,
-            FillDirection = Enum.FillDirection.Horizontal,
-            HorizontalAlignment = Enum.HorizontalAlignment.Left,
-            VerticalAlignment = Enum.VerticalAlignment.Top,
-            CellSize = UDim2.new(0.5, -5, 0, 0),
-            CellPadding = UDim2.new(0, 10, 0, 10)
+            Size = UDim2.new(0.5, -5, 0, 0),
+            Position = UDim2.new(0, 0, 0, 0),
+            BackgroundTransparency = 1,
+            AutomaticSize = Enum.AutomaticSize.Y
         })
+        
+        tab.RightColumn = Create("Frame", {
+            Parent = tab.SectionsContainer,
+            Size = UDim2.new(0.5, -5, 0, 0),
+            Position = UDim2.new(0.5, 5, 0, 0),
+            BackgroundTransparency = 1,
+            AutomaticSize = Enum.AutomaticSize.Y
+        })
+        
+        -- Добавляем UIListLayout для каждой колонки
+        Create("UIListLayout", {
+            Parent = tab.LeftColumn,
+            SortOrder = Enum.SortOrder.LayoutOrder,
+            Padding = UDim.new(0, 10)
+        })
+        
+        Create("UIListLayout", {
+            Parent = tab.RightColumn,
+            SortOrder = Enum.SortOrder.LayoutOrder,
+            Padding = UDim.new(0, 10)
+        })
+        
+        tab.SectionCount = 0
     end
     
+    -- Определяем, в какую колонку добавить секцию
+    local parent = tab.SectionCount % 2 == 0 and tab.LeftColumn or tab.RightColumn
+    tab.SectionCount = tab.SectionCount + 1
+    
     section.Container = Create("Frame", {
-        Parent = tab.SectionsContainer,
+        Parent = parent,
+        Size = UDim2.new(1, 0, 0, 0),
         BackgroundColor3 = THEME.Foreground,
         BorderSizePixel = 0,
-        AutomaticSize = Enum.AutomaticSize.Y,
-        Size = UDim2.new(0.5, -5, 0, 0)
+        AutomaticSize = Enum.AutomaticSize.Y
     })
     
     -- Скругление углов для секции
