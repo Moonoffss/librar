@@ -21,15 +21,18 @@ local CoreGui = game:GetService("CoreGui")
 local THEME = {
     Background = Color3.fromRGB(15, 15, 15),
     Foreground = Color3.fromRGB(20, 20, 20),
-    DarkForeground = Color3.fromRGB(18, 18, 18),
+    DarkForeground = Color3.fromRGB(13, 13, 13),
     AccentColor = Color3.fromRGB(114, 111, 181),
     TextColor = Color3.fromRGB(255, 255, 255),
     SubTextColor = Color3.fromRGB(180, 180, 180),
     BorderColor = Color3.fromRGB(30, 30, 30),
     PlaceholderColor = Color3.fromRGB(60, 60, 60),
-    HoverColor = Color3.fromRGB(40, 40, 40),
+    HoverColor = Color3.fromRGB(25, 25, 25),
     ErrorColor = Color3.fromRGB(255, 64, 64),
-    OutlineColor = Color3.fromRGB(50, 50, 50)
+    OutlineColor = Color3.fromRGB(35, 35, 35),
+    ToggleBackground = Color3.fromRGB(20, 20, 20),
+    ToggleEnabled = Color3.fromRGB(114, 111, 181),
+    ToggleDisabled = Color3.fromRGB(50, 50, 50)
 }
 
 local Library = {
@@ -423,36 +426,36 @@ function Library:CreateToggle(section, name, default, callback)
     
     toggle.Container = Create("Frame", {
         Parent = section.Content,
-        Size = UDim2.new(1, 0, 0, 30),
+        Size = UDim2.new(1, 0, 0, 25),
         BackgroundTransparency = 1
     })
     
     -- Текст
     Create("TextLabel", {
         Parent = toggle.Container,
-        Size = UDim2.new(1, -60, 1, 0),
+        Size = UDim2.new(1, -50, 1, 0),
         BackgroundTransparency = 1,
         Text = name,
         TextColor3 = THEME.TextColor,
         TextXAlignment = Enum.TextXAlignment.Left,
         Font = Enum.Font.Gotham,
-        TextSize = 14
+        TextSize = 13
     })
     
     -- Переключатель
     toggle.Button = Create("Frame", {
         Parent = toggle.Container,
-        Size = UDim2.new(0, 40, 0, 20),
-        Position = UDim2.new(1, -40, 0.5, -10),
-        BackgroundColor3 = toggle.Value and THEME.AccentColor or THEME.PlaceholderColor,
+        Size = UDim2.new(0, 36, 0, 18),
+        Position = UDim2.new(1, -36, 0.5, -9),
+        BackgroundColor3 = toggle.Value and THEME.ToggleEnabled or THEME.ToggleDisabled,
         BorderSizePixel = 0
     })
     
     -- Индикатор
     toggle.Indicator = Create("Frame", {
         Parent = toggle.Button,
-        Size = UDim2.new(0, 16, 0, 16),
-        Position = UDim2.new(toggle.Value and 1 or 0, toggle.Value and -18 or 2, 0.5, -8),
+        Size = UDim2.new(0, 14, 0, 14),
+        Position = UDim2.new(toggle.Value and 1 or 0, toggle.Value and -16 or 2, 0.5, -7),
         BackgroundColor3 = THEME.TextColor,
         BorderSizePixel = 0
     })
@@ -468,41 +471,13 @@ function Library:CreateToggle(section, name, default, callback)
         CornerRadius = UDim.new(1, 0)
     })
     
-    -- Эффект свечения
-    local glow = Create("ImageLabel", {
-        Parent = toggle.Button,
-        Size = UDim2.new(1.5, 0, 1.5, 0),
-        Position = UDim2.new(0.5, 0, 0.5, 0),
-        AnchorPoint = Vector2.new(0.5, 0.5),
-        BackgroundTransparency = 1,
-        Image = "rbxassetid://7603818835",
-        ImageColor3 = THEME.AccentColor,
-        ImageTransparency = toggle.Value and 0.8 or 1
-    })
-    
     -- Функция для установки значения
     function toggle:SetValue(value)
         toggle.Value = value
-        Tween(toggle.Button, {BackgroundColor3 = value and THEME.AccentColor or THEME.PlaceholderColor})
-        Tween(toggle.Indicator, {Position = UDim2.new(value and 1 or 0, value and -18 or 2, 0.5, -8)})
-        Tween(glow, {ImageTransparency = value and 0.8 or 1})
+        Tween(toggle.Button, {BackgroundColor3 = value and THEME.ToggleEnabled or THEME.ToggleDisabled})
+        Tween(toggle.Indicator, {Position = UDim2.new(value and 1 or 0, value and -16 or 2, 0.5, -7)})
         if callback then
             callback(value)
-        end
-    end
-    
-    -- Функция для установки клавиши
-    function toggle:SetKeybind(key)
-        if toggle.Keybind then
-            toggle.Keybind:Disconnect()
-        end
-        
-        if key then
-            toggle.Keybind = UserInputService.InputBegan:Connect(function(input)
-                if input.KeyCode == key then
-                    toggle:SetValue(not toggle.Value)
-                end
-            end)
         end
     end
     
@@ -585,34 +560,54 @@ function Library:CreateDropdown(section, name, options, default, callback)
     
     dropdown.Container = Create("Frame", {
         Parent = section.Content,
-        Size = UDim2.new(1, 0, 0, 30),
+        Size = UDim2.new(1, 0, 0, 25),
         BackgroundTransparency = 1
     })
     
     -- Текст
     Create("TextLabel", {
         Parent = dropdown.Container,
-        Size = UDim2.new(1, -60, 1, 0),
+        Size = UDim2.new(1, -30, 1, 0),
         BackgroundTransparency = 1,
         Text = name,
         TextColor3 = THEME.TextColor,
         TextXAlignment = Enum.TextXAlignment.Left,
         Font = Enum.Font.Gotham,
-        TextSize = 14
+        TextSize = 13
     })
     
     -- Кнопка дропдауна
     dropdown.Button = Create("TextButton", {
         Parent = dropdown.Container,
-        Size = UDim2.new(0, 120, 0, 24),
-        Position = UDim2.new(1, -120, 0.5, -12),
-        BackgroundColor3 = THEME.Foreground,
+        Size = UDim2.new(0, 100, 0, 20),
+        Position = UDim2.new(1, -100, 0.5, -10),
+        BackgroundColor3 = THEME.DarkForeground,
         BorderSizePixel = 0,
+        Text = "",
+        AutoButtonColor = false
+    })
+    
+    -- Текст значения
+    local valueText = Create("TextLabel", {
+        Parent = dropdown.Button,
+        Size = UDim2.new(1, -20, 1, 0),
+        Position = UDim2.new(0, 8, 0, 0),
+        BackgroundTransparency = 1,
         Text = dropdown.Value,
         TextColor3 = THEME.TextColor,
+        TextXAlignment = Enum.TextXAlignment.Left,
         Font = Enum.Font.Gotham,
-        TextSize = 12,
-        AutoButtonColor = false
+        TextSize = 12
+    })
+    
+    -- Иконка
+    local icon = Create("ImageLabel", {
+        Parent = dropdown.Button,
+        Size = UDim2.new(0, 12, 0, 12),
+        Position = UDim2.new(1, -16, 0.5, -6),
+        BackgroundTransparency = 1,
+        Image = "rbxassetid://7072706663",
+        ImageColor3 = THEME.TextColor
     })
     
     -- Скругление углов
@@ -626,7 +621,7 @@ function Library:CreateDropdown(section, name, options, default, callback)
         Parent = dropdown.Button,
         Size = UDim2.new(1, 0, 0, 0),
         Position = UDim2.new(0, 0, 1, 5),
-        BackgroundColor3 = THEME.Foreground,
+        BackgroundColor3 = THEME.DarkForeground,
         BorderSizePixel = 0,
         Visible = false,
         ZIndex = 10
@@ -648,7 +643,7 @@ function Library:CreateDropdown(section, name, options, default, callback)
         local optionButton = Create("TextButton", {
             Parent = dropdown.OptionList,
             Size = UDim2.new(1, 0, 0, 24),
-            BackgroundColor3 = THEME.Foreground,
+            BackgroundColor3 = THEME.DarkForeground,
             BorderSizePixel = 0,
             Text = option,
             TextColor3 = THEME.TextColor,
@@ -663,12 +658,12 @@ function Library:CreateDropdown(section, name, options, default, callback)
         end)
         
         optionButton.MouseLeave:Connect(function()
-            Tween(optionButton, {BackgroundColor3 = THEME.Foreground})
+            Tween(optionButton, {BackgroundColor3 = THEME.DarkForeground})
         end)
         
         optionButton.MouseButton1Click:Connect(function()
             dropdown.Value = option
-            dropdown.Button.Text = option
+            valueText.Text = option
             dropdown:Toggle(false)
             if callback then
                 callback(option)
@@ -682,27 +677,15 @@ function Library:CreateDropdown(section, name, options, default, callback)
         dropdown.OptionList.Visible = state
         if state then
             dropdown.OptionList.Size = UDim2.new(1, 0, 0, #options * 26)
+            Tween(icon, {Rotation = 180})
+        else
+            Tween(icon, {Rotation = 0})
         end
     end
     
     -- Обработка нажатия
     dropdown.Button.MouseButton1Click:Connect(function()
         dropdown:Toggle(not dropdown.Open)
-    end)
-    
-    -- Закрываем при клике вне дропдауна
-    UserInputService.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            local mousePos = UserInputService:GetMouseLocation()
-            local inBounds = mousePos.X >= dropdown.Button.AbsolutePosition.X and
-                           mousePos.X <= dropdown.Button.AbsolutePosition.X + dropdown.Button.AbsoluteSize.X and
-                           mousePos.Y >= dropdown.Button.AbsolutePosition.Y and
-                           mousePos.Y <= dropdown.Button.AbsolutePosition.Y + dropdown.Button.AbsoluteSize.Y
-            
-            if not inBounds and dropdown.Open then
-                dropdown:Toggle(false)
-            end
-        end
     end)
     
     return dropdown
