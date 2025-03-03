@@ -19,15 +19,17 @@ local CoreGui = game:GetService("CoreGui")
 
 -- Константы
 local THEME = {
-    Background = Color3.fromRGB(20, 20, 20),
-    Foreground = Color3.fromRGB(30, 30, 30),
+    Background = Color3.fromRGB(15, 15, 15),
+    Foreground = Color3.fromRGB(20, 20, 20),
+    DarkForeground = Color3.fromRGB(18, 18, 18),
     AccentColor = Color3.fromRGB(114, 111, 181),
     TextColor = Color3.fromRGB(255, 255, 255),
     SubTextColor = Color3.fromRGB(180, 180, 180),
-    BorderColor = Color3.fromRGB(40, 40, 40),
+    BorderColor = Color3.fromRGB(30, 30, 30),
     PlaceholderColor = Color3.fromRGB(60, 60, 60),
     HoverColor = Color3.fromRGB(40, 40, 40),
-    ErrorColor = Color3.fromRGB(255, 64, 64)
+    ErrorColor = Color3.fromRGB(255, 64, 64),
+    OutlineColor = Color3.fromRGB(50, 50, 50)
 }
 
 local Library = {
@@ -182,16 +184,36 @@ function Library:CreateTab(name, icon)
         Visible = false
     }
     
+    -- Контейнер с обводкой для кнопки
+    local buttonOutline = Create("Frame", {
+        Name = name .. "ButtonOutline",
+        Parent = self.TabButtons,
+        Size = UDim2.new(1, -10, 0, 32),
+        Position = UDim2.new(0, 5, 0, 0),
+        BackgroundColor3 = THEME.OutlineColor,
+        BorderSizePixel = 0
+    })
+    
+    Create("UICorner", {
+        Parent = buttonOutline,
+        CornerRadius = UDim.new(0, 8)
+    })
+    
     -- Кнопка вкладки
     tab.Button = Create("TextButton", {
         Name = name .. "Button",
-        Parent = self.TabButtons,
-        Size = UDim2.new(1, -10, 0, 30),
-        Position = UDim2.new(0, 5, 0, 0),
+        Parent = buttonOutline,
+        Size = UDim2.new(1, -2, 1, -2),
+        Position = UDim2.new(0, 1, 0, 1),
         BackgroundColor3 = THEME.Background,
         BorderSizePixel = 0,
         Text = "",
         AutoButtonColor = false
+    })
+    
+    Create("UICorner", {
+        Parent = tab.Button,
+        CornerRadius = UDim.new(0, 7)
     })
     
     -- Иконка (если есть)
@@ -240,6 +262,19 @@ function Library:CreateTab(name, icon)
     -- Обработка нажатия
     tab.Button.MouseButton1Click:Connect(function()
         self:SelectTab(tab)
+    end)
+    
+    -- Эффект при наведении
+    tab.Button.MouseEnter:Connect(function()
+        if self.ActiveTab ~= tab then
+            Tween(tab.Button, {BackgroundColor3 = THEME.HoverColor})
+        end
+    end)
+    
+    tab.Button.MouseLeave:Connect(function()
+        if self.ActiveTab ~= tab then
+            Tween(tab.Button, {BackgroundColor3 = THEME.Background})
+        end
     end)
     
     table.insert(self.Tabs, tab)
@@ -316,18 +351,32 @@ function Library:CreateSection(tab, name)
     local parent = tab.SectionCount % 2 == 0 and tab.LeftColumn or tab.RightColumn
     tab.SectionCount = tab.SectionCount + 1
     
-    section.Container = Create("Frame", {
+    -- Создаем контейнер с обводкой
+    local outlineContainer = Create("Frame", {
         Parent = parent,
         Size = UDim2.new(1, 0, 0, 0),
-        BackgroundColor3 = THEME.Foreground,
+        BackgroundColor3 = THEME.OutlineColor,
         BorderSizePixel = 0,
         AutomaticSize = Enum.AutomaticSize.Y
     })
     
-    -- Скругление углов для секции
+    Create("UICorner", {
+        Parent = outlineContainer,
+        CornerRadius = UDim.new(0, 8)
+    })
+    
+    section.Container = Create("Frame", {
+        Parent = outlineContainer,
+        Size = UDim2.new(1, -2, 1, -2),
+        Position = UDim2.new(0, 1, 0, 1),
+        BackgroundColor3 = THEME.DarkForeground,
+        BorderSizePixel = 0,
+        AutomaticSize = Enum.AutomaticSize.Y
+    })
+    
     Create("UICorner", {
         Parent = section.Container,
-        CornerRadius = UDim.new(0, 6)
+        CornerRadius = UDim.new(0, 7)
     })
     
     -- Заголовок секции
