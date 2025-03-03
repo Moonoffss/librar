@@ -268,18 +268,45 @@ end
 function Library:CreateSection(tab, name)
     local section = {}
     
+    -- Находим или создаем контейнер для секций
+    if not tab.SectionsContainer then
+        tab.SectionsContainer = Create("Frame", {
+            Parent = tab.Container,
+            Size = UDim2.new(1, 0, 0, 0),
+            BackgroundTransparency = 1,
+            AutomaticSize = Enum.AutomaticSize.Y
+        })
+        
+        -- Добавляем горизонтальный layout
+        Create("UIGridLayout", {
+            Parent = tab.SectionsContainer,
+            SortOrder = Enum.SortOrder.LayoutOrder,
+            FillDirection = Enum.FillDirection.Horizontal,
+            HorizontalAlignment = Enum.HorizontalAlignment.Left,
+            VerticalAlignment = Enum.VerticalAlignment.Top,
+            CellSize = UDim2.new(0.5, -5, 0, 0), -- Две секции в ряд
+            CellPadding = UDim2.new(0, 10, 0, 10)
+        })
+    end
+    
     section.Container = Create("Frame", {
-        Parent = tab.Container,
-        Size = UDim2.new(1, 0, 0, 30),
+        Parent = tab.SectionsContainer,
         BackgroundColor3 = THEME.Foreground,
         BorderSizePixel = 0,
-        AutomaticSize = Enum.AutomaticSize.Y
+        AutomaticSize = Enum.AutomaticSize.Y,
+        Size = UDim2.new(1, 0, 0, 0)
+    })
+    
+    -- Скругление углов для секции
+    Create("UICorner", {
+        Parent = section.Container,
+        CornerRadius = UDim.new(0, 6)
     })
     
     -- Заголовок секции
     Create("TextLabel", {
         Parent = section.Container,
-        Size = UDim2.new(1, -10, 0, 30),
+        Size = UDim2.new(1, -20, 0, 30),
         Position = UDim2.new(0, 10, 0, 0),
         BackgroundTransparency = 1,
         Text = name,
@@ -302,6 +329,12 @@ function Library:CreateSection(tab, name)
         Parent = section.Content,
         SortOrder = Enum.SortOrder.LayoutOrder,
         Padding = UDim.new(0, 5)
+    })
+    
+    -- Добавляем отступ снизу
+    Create("UIPadding", {
+        Parent = section.Container,
+        PaddingBottom = UDim.new(0, 10)
     })
     
     return section
